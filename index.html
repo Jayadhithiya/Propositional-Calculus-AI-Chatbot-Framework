@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A Propositional Calculus Framework for AI Chatbot Decision Making in Customer Support — Interactive web application demonstrating logic-driven chatbot responses.">
+  <title>PropLogic AI — Propositional Calculus Chatbot Framework</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- ════════════════════════════════════════════
+         SIDEBAR NAVIGATION
+    ════════════════════════════════════════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🧠</div>
+        <div class="logo-title">PropLogic AI</div>
+        <div class="logo-sub">Propositional Calculus Framework</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item active" data-tab="chatbot" id="nav-chatbot">
+          <span class="nav-icon">💬</span>
+          <span>Chatbot</span>
+        </div>
+        <div class="nav-item" data-tab="kb" id="nav-kb">
+          <span class="nav-icon">📚</span>
+          <span>Knowledge Base</span>
+        </div>
+        <div class="nav-item" data-tab="rules" id="nav-rules">
+          <span class="nav-icon">⚙️</span>
+          <span>Rule Builder</span>
+        </div>
+        <div class="nav-item" data-tab="truth-table" id="nav-truth-table">
+          <span class="nav-icon">📊</span>
+          <span>Truth Tables</span>
+        </div>
+        <div class="nav-item" data-tab="trace" id="nav-trace">
+          <span class="nav-icon">🔍</span>
+          <span>Decision Trace</span>
+          <span class="nav-badge" id="trace-badge">0</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-info">
+          <strong>Logic Operators</strong><br>
+          ¬ NOT &nbsp; ∧ AND &nbsp; ∨ OR<br>
+          → IMPLIES &nbsp; ↔ IFF<br><br>
+          <strong>Inference Rule</strong><br>
+          Modus Ponens: P → Q, P ⊢ Q
+        </div>
+      </div>
+    </aside>
+
+    <!-- ════════════════════════════════════════════
+         MAIN CONTENT
+    ════════════════════════════════════════════ -->
+    <main class="main-content">
+
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="top-bar-title">
+          <span>Propositional Calculus</span> Framework for AI Chatbot Decision Making
+        </div>
+        <div class="status-dot"></div>
+        <div class="status-text">Logic Engine Active</div>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+
+        <!-- ══════════════════════════════════════
+             TAB 1: CHATBOT
+        ══════════════════════════════════════ -->
+        <div class="tab-panel active" id="tab-chatbot">
+          <div class="chat-container">
+
+            <!-- Chat Header -->
+            <div class="chat-header">
+              <div class="chat-header-left">
+                <div class="bot-avatar-header">🤖</div>
+                <div>
+                  <div class="bot-name">PropBot Support Agent</div>
+                  <div class="bot-status">● Powered by Propositional Logic</div>
+                </div>
+              </div>
+              <div class="chat-controls">
+                <button class="btn btn-sm btn-secondary" onclick="ui.clearChat()">🗑️ Clear</button>
+              </div>
+            </div>
+
+            <!-- Sample Conversations Bar -->
+            <div class="samples-bar">
+              <span class="samples-label">▶ Try sample:</span>
+              <div id="sample-convos"></div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chat-messages"></div>
+
+            <!-- Input Area -->
+            <div class="chat-input-area">
+              <div class="input-wrapper">
+                <textarea
+                  id="chat-input"
+                  placeholder="Describe your issue... (e.g. 'I have a billing problem', 'I forgot my password')"
+                  rows="1"
+                ></textarea>
+                <button id="send-btn" title="Send (Enter)">➤</button>
+              </div>
+              <div class="input-hint">Press Enter to send · Shift+Enter for new line · Click ⚡ badge to see logic trace</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             TAB 2: KNOWLEDGE BASE
+        ══════════════════════════════════════ -->
+        <div class="tab-panel" id="tab-kb">
+          <div class="section-header">
+            <div class="section-title">📚 <span>Knowledge Base</span></div>
+            <div class="section-desc">
+              Manage propositions (facts) that the logic engine uses to evaluate rules.
+              Toggle any proposition to TRUE/FALSE to control the chatbot's reasoning context.
+            </div>
+          </div>
+
+          <div class="kb-toolbar">
+            <button class="btn btn-sm btn-secondary" onclick="ui.resetKB()">🔄 Reset Defaults</button>
+            <button class="btn btn-sm btn-secondary" onclick="ui.exportKB()">📥 Export JSON</button>
+            <div class="kb-stats">
+              Active facts: <strong id="kb-true-count">0</strong> / {{ total }}
+            </div>
+          </div>
+
+          <div id="kb-propositions"></div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             TAB 3: RULE BUILDER
+        ══════════════════════════════════════ -->
+        <div class="tab-panel" id="tab-rules">
+
+          <!-- Left: Rule Form -->
+          <div class="rules-panel-left">
+            <div class="rule-list-header">
+              <span>📋 Implication Rules</span>
+              <span style="font-size:11px;color:var(--text-muted);" id="rule-count"></span>
+            </div>
+            <div id="rule-list"></div>
+          </div>
+
+          <!-- Right: Rule Form -->
+          <div class="rules-panel-right">
+            <div style="padding: 4px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
+              <div class="section-title" id="rule-form-title">➕ Add New Rule</div>
+              <div class="section-desc" style="padding-bottom:0;">
+                Create logical implication rules: IF (formula) THEN (action/response).
+                Rules are evaluated using Modus Ponens on every chatbot message.
+              </div>
+            </div>
+
+            <form class="rule-form" id="rule-form" onsubmit="event.preventDefault(); ui.saveRule();">
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="form-group">
+                  <label class="form-label" for="rule-id">Rule ID</label>
+                  <input class="form-input" id="rule-id" placeholder="e.g. R20" autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="rule-priority">Priority (1-10)</label>
+                  <input class="form-input" id="rule-priority" type="number" min="1" max="10" value="5">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="rule-name">Rule Name</label>
+                <input class="form-input" id="rule-name" placeholder="e.g. Premium Refund Approval" autocomplete="off">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="rule-formula">
+                  Logical Formula (Antecedent / Condition)
+                </label>
+                <div class="formula-input-wrapper">
+                  <input class="form-input" id="rule-formula"
+                    placeholder="e.g. P1 ∧ P4 ∧ P5" autocomplete="off"
+                    style="font-family:'JetBrains Mono',monospace">
+                </div>
+                <div class="formula-operators">
+                  <button type="button" class="op-btn" onclick="ui._insertOperator('¬')" title="NOT">¬</button>
+                  <button type="button" class="op-btn" onclick="ui._insertOperator('∧')" title="AND">∧</button>
+                  <button type="button" class="op-btn" onclick="ui._insertOperator('∨')" title="OR">∨</button>
+                  <button type="button" class="op-btn" onclick="ui._insertOperator('→')" title="IMPLIES">→</button>
+                  <button type="button" class="op-btn" onclick="ui._insertOperator('↔')" title="IFF">↔</button>
+                  <button type="button" class="op-btn" onclick="ui._insertOperator('(')" title="(">(</button>
+                  <button type="button" class="op-btn" onclick="ui._insertOperator(')')" title=")">)</button>
+                </div>
+                <div class="formula-preview" id="formula-preview"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="rule-conclusion">Conclusion (Action Code)</label>
+                <input class="form-input" id="rule-conclusion"
+                  placeholder="e.g. PROCESS_REFUND" autocomplete="off"
+                  style="font-family:'JetBrains Mono',monospace;text-transform:uppercase"
+                  oninput="this.value=this.value.toUpperCase()">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="rule-response">Chatbot Response Text</label>
+                <textarea class="form-textarea" id="rule-response"
+                  placeholder="Enter the response the chatbot will give when this rule fires..."
+                  rows="4"></textarea>
+              </div>
+
+              <!-- Proposition Quick Reference -->
+              <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;">
+                <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">
+                  💡 Proposition Quick Reference
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;font-family:'JetBrains Mono',monospace;font-size:11px;" id="prop-reference">
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Save Rule</button>
+                <button type="button" class="btn btn-secondary" onclick="ui.cancelEdit()">✕ Cancel</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             TAB 4: TRUTH TABLE
+        ══════════════════════════════════════ -->
+        <div class="tab-panel" id="tab-truth-table">
+          <div class="section-header">
+            <div class="section-title">📊 <span>Truth Table Generator</span></div>
+            <div class="section-desc">
+              Enter any propositional formula to generate its complete truth table, check for tautologies/contradictions, and convert to CNF.
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="tt-controls">
+            <div class="tt-input-row">
+              <input class="form-input" id="tt-formula-input"
+                placeholder="e.g. (P1 ∧ P2) → P3   or   ¬P ∨ (P ∧ Q)"
+                style="font-family:'JetBrains Mono',monospace">
+              <button class="btn btn-primary" onclick="ui.generateTruthTable()">⚡ Generate</button>
+              <button class="btn btn-secondary btn-sm" onclick="ui.exportTruthTable()">📥 CSV</button>
+            </div>
+
+            <div class="tt-operators">
+              <span style="font-size:11px;color:var(--text-muted);margin-right:4px;">Insert:</span>
+              <button type="button" class="op-btn" onclick="ui.insertTTOperator('¬')">¬ NOT</button>
+              <button type="button" class="op-btn" onclick="ui.insertTTOperator('∧')">∧ AND</button>
+              <button type="button" class="op-btn" onclick="ui.insertTTOperator('∨')">∨ OR</button>
+              <button type="button" class="op-btn" onclick="ui.insertTTOperator('→')">→ IMPLIES</button>
+              <button type="button" class="op-btn" onclick="ui.insertTTOperator('↔')">↔ IFF</button>
+            </div>
+
+            <div class="tt-examples">
+              <span class="tt-example-label">Examples:</span>
+              <button class="example-pill" onclick="ui.setExampleFormula('P → Q')">P → Q</button>
+              <button class="example-pill" onclick="ui.setExampleFormula('(P ∧ Q) → P')">(P ∧ Q) → P</button>
+              <button class="example-pill" onclick="ui.setExampleFormula('P ∨ ¬P')">P ∨ ¬P (Tautology)</button>
+              <button class="example-pill" onclick="ui.setExampleFormula('P ∧ ¬P')">P ∧ ¬P (Contradiction)</button>
+              <button class="example-pill" onclick="ui.setExampleFormula('(P → Q) ∧ (Q → R) → (P → R)')">(P→Q)∧(Q→R)→(P→R)</button>
+              <button class="example-pill" onclick="ui.setExampleFormula('¬(P ∧ Q) ↔ (¬P ∨ ¬Q)')">De Morgan's Law</button>
+              <button class="example-pill" onclick="ui.setExampleFormula('(P1 ∧ P3) → P9')">P1 ∧ P3 → P9</button>
+            </div>
+          </div>
+
+          <!-- Output -->
+          <div id="tt-output">
+            <div class="tt-empty">
+              Enter a formula above and click ⚡ Generate to see the truth table
+            </div>
+          </div>
+
+          <!-- Formula Comparison -->
+          <div class="proof-section" style="border-top: 2px solid var(--border); padding-top:20px;">
+            <h3>🔄 Formula Equivalence Checker</h3>
+            <div class="proof-inputs">
+              <div class="form-group">
+                <label class="form-label">Formula 1</label>
+                <input class="form-input" id="tt-formula-input-2"
+                  placeholder="e.g. P → Q"
+                  style="font-family:'JetBrains Mono',monospace">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Formula 2 (from main input above)</label>
+                <input class="form-input" readonly
+                  style="font-family:'JetBrains Mono',monospace;opacity:0.6"
+                  placeholder="Uses formula from main input above">
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="ui.compareTruthTables()">⚖️ Check Equivalence</button>
+          </div>
+
+          <!-- Resolution Proof -->
+          <div class="proof-section">
+            <h3>🔬 Resolution Proof System</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+              Enter premises (one per line) and a conclusion to prove using resolution refutation.
+            </p>
+            <div class="proof-inputs">
+              <div class="form-group">
+                <label class="form-label">Premises (one per line)</label>
+                <textarea class="form-textarea" id="proof-premises"
+                  rows="4"
+                  style="font-family:'JetBrains Mono',monospace"
+                  placeholder="P → Q&#10;P"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Conclusion to Prove</label>
+                <input class="form-input" id="proof-conclusion"
+                  style="font-family:'JetBrains Mono',monospace"
+                  placeholder="Q">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="ui.generateResolutionProof()">🧮 Prove by Resolution</button>
+            <div id="proof-output" style="margin-top:16px;"></div>
+          </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════
+             TAB 5: DECISION TRACE
+        ══════════════════════════════════════ -->
+        <div class="tab-panel" id="tab-trace">
+          <div class="section-header">
+            <div class="section-title">🔍 <span>Decision Trace</span> — Proof Viewer</div>
+            <div class="section-desc">
+              Step-by-step propositional logic reasoning behind the last chatbot response.
+              Shows intent detection → KB update → rule evaluation → Modus Ponens → response selection.
+            </div>
+          </div>
+
+          <div class="trace-scroll">
+            <div id="trace-container"></div>
+          </div>
+        </div>
+
+      </div><!-- /tab-content -->
+    </main>
+  </div><!-- /app-layout -->
+
+  <!-- ════════════════════════════════════════════
+       SCRIPTS (load order matters)
+  ════════════════════════════════════════════ -->
+  <script src="js/data.js"></script>
+  <script src="js/logic-engine.js"></script>
+  <script src="js/knowledge-base.js"></script>
+  <script src="js/truth-table.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/ui.js"></script>
+
+  <!-- Inline: prop reference builder for Rule Form -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ref = document.getElementById('prop-reference');
+      if (ref && typeof INITIAL_PROPOSITIONS !== 'undefined') {
+        ref.innerHTML = INITIAL_PROPOSITIONS.map(p =>
+          `<span style="background:var(--cyan-dim);color:var(--cyan);padding:2px 6px;border-radius:4px;cursor:pointer;margin:2px;"
+                 title="${p.label}"
+                 onclick="document.getElementById('rule-formula').value += '${p.id}'; document.getElementById('rule-formula').dispatchEvent(new Event('input'));"
+          >${p.id}</span>`
+        ).join('');
+      }
+
+      // Update rule count
+      const countEl = document.getElementById('rule-count');
+      if (countEl && typeof INITIAL_RULES !== 'undefined') {
+        countEl.textContent = INITIAL_RULES.length + ' rules';
+        knowledgeBase.onChange(() => {
+          if (countEl) countEl.textContent = knowledgeBase.rules.length + ' rules';
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
